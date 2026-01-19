@@ -24,4 +24,4 @@ jobs:
         run: npm install -g @redocly/cli
 
       - name: Validate OpenAPI specification
-        run: redocly lint OCTO-API.yaml
+        run: redocly lint OCTO-API.yaml --format=github-actions
