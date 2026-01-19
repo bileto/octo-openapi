@@ -18393,7 +18393,6 @@
                     - "en"
                   "country": "GB"
       "description": ""
-      security:
 externalDocs:
   url: https://docs.octo.travel/
   description: OCTO Developer Hub
