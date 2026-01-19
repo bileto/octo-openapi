@@ -20,8 +20,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install swagger-cli
-        run: npm install -g @apidevtools/swagger-cli
+      - name: Install Redocly CLI
+        run: npm install -g @redocly/cli
 
       - name: Validate OpenAPI specification
-        run: swagger-cli validate OCTO-API.yaml
+        run: redocly lint OCTO-API.yaml
