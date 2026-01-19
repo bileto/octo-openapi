@@ -25,3 +25,5 @@ jobs:
 
       - name: Validate OpenAPI specification
         run: redocly lint OCTO-API.yaml --format=github-actions
+        env:
+          REDOCLY_TELEMETRY: off
