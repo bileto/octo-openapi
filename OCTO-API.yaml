@@ -17,6 +17,9 @@
       "operationId": "getSupplier"
       "tags":
         - "Supplier"
+      parameters:
+        - $ref: '#/components/parameters/OctoCapabilitiesHeader'
+        - $ref: '#/components/parameters/OctoCapabilitiesQuery'
       "responses":
         "200":
           "description": "OK"
@@ -3397,6 +3400,50 @@
       "description": "Use this endpoint to hold the availability for a booking longer if the status is `ON_HOLD`."
 "components":
   "schemas":
+    "Media":
+      "type": "object"
+      "properties":
+        "type":
+          $ref: '#/components/schemas/MediaType'
+        "rel":
+          $ref: '#/components/schemas/MediaRel'
+        "src":
+          type: string
+          format: uri
+        "title":
+          "type":
+            - "string"
+            - "null"
+        "caption":
+          "type":
+            - "string"
+            - "null"
+        "copyright":
+          "type":
+            - "string"
+            - "null"
+
+    "MediaType":
+      "type": "string"
+      "enum":
+        - "image/jpeg"
+        - "image/png"
+        - "image/webp"
+        - "image/svg+xml"
+        - "video/mp4"
+        - "video/avi"
+        - "external/youtube"
+        - "external/vimeo"
+        - "external/other"
+        - "application/pdf"
+
+    "MediaRel":
+      "type": "string"
+      "enum":
+        - "LOGO"
+        - "COVER"
+        - "GALLERY"
+
     "Product":
       "type": "object"
       "x-examples":
@@ -4094,6 +4141,19 @@
                 - "string"
               "description": "The (snail) mail address support contact for the Supplier."
               "example": "123 Fake St. Springfield, USA"
+        "shortDescription":
+          "type":
+            - "string"
+            - "null"
+          "description": "Short description of the supplier.\n\nPopulated as part of d)`content` capability."
+        media:
+          type:
+            - "null"
+            - "array"
+          items:
+              $ref: '#/components/schemas/Media'
+          minItems: 0
+          description: "Populated as part of `content` capability."
       "required":
         - "id"
         - "name"
@@ -6558,6 +6618,25 @@
                     - "en"
                   "country": "GB"
       "description": ""
+  "parameters":
+    "OctoCapabilitiesHeader":
+      "in": "header"
+      "name": "Octo-Capabilities"
+      "description": "Comma-separated list of supported optional OCTO capabilities"
+      "schema":
+        "type": "string"
+      "required": false
+      "explode": true
+      "example": "octo/content,octo/offers"
+    "OctoCapabilitiesQuery":
+      "in": "query"
+      "name": "_capabilities"
+      "description": "Comma-separated list of supported optional OCTO capabilities"
+      "schema":
+        "type": "string"
+      "required": false
+      "explode": true
+      "example": "octo/content,octo/offers"
 security:
   - OAuth2:
     - read
