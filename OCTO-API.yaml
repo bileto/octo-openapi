@@ -14,6 +14,7 @@
   "/supplier":
     "get":
       "summary": "Get Supplier"
+      "operationId": "getSupplier"
       "tags":
         - "Supplier"
       "responses":
@@ -27,6 +28,7 @@
   "/products":
     "get":
       "summary": "Get Products"
+      "operationId": "getProducts"
       "tags":
         - "Products"
       "responses":
@@ -42,6 +44,7 @@
   "/products/{id}":
     "get":
       "summary": "Get Product"
+      "operationId": "getProductById"
       "tags":
         - "Products"
       "parameters":
@@ -63,6 +66,7 @@
   "/availability/calendar":
     "post":
       "summary": "Availability Calendar"
+      "operationId": "getAvailabilityCalendarByCriteria"
       "tags":
         - "Availability"
       "responses":
@@ -138,6 +142,7 @@
   "/availability":
     "post":
       "summary": "Availability Check"
+      "operationId": "getAvailabilityByCriteria"
       "tags":
         - "Availability"
       "responses":
