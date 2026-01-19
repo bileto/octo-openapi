@@ -18,11 +18,17 @@
       "tags":
         - "Supplier"
       parameters:
+        - $ref: "#/components/parameters/AcceptLanguage"
         - $ref: '#/components/parameters/OctoCapabilitiesHeader'
         - $ref: '#/components/parameters/OctoCapabilitiesQuery'
       "responses":
         "200":
           "description": "OK"
+          "headers":
+            "Available-Languages":
+              $ref: "#/components/headers/Available-Languages"
+            "Content-Language":
+              $ref: "#/components/headers/Content-Language"
           "content":
             "application/json":
               "schema":
@@ -3399,6 +3405,18 @@
           "description": "Required field on all POST requests"
       "description": "Use this endpoint to hold the availability for a booking longer if the status is `ON_HOLD`."
 "components":
+  "headers":
+    "Available-Languages":
+      "description": "The HTTP Accept-Language request header indicates the natural language and locale that the client prefers.\n\nOCTO supports it as part of `content` capability."
+      "schema":
+        "type": "string"
+      "example": "en-GB,es-ES,de-DE"
+    "Content-Language":
+      "description": "The HTTP Content-Language representation header is used to describe the language(s) intended for the audience, so users can differentiate it according to their own preferred language.\n\nOCTO supports it as part of `content` capability."
+      "schema":
+        "type": "string"
+      "example": "en-GB"
+
   "schemas":
     "Media":
       "type": "object"
@@ -4146,14 +4164,14 @@
             - "string"
             - "null"
           "description": "Short description of the supplier.\n\nPopulated as part of d)`content` capability."
-        media:
-          type:
+        "media":
+          "type":
             - "null"
             - "array"
-          items:
+          "items":
               $ref: '#/components/schemas/Media'
-          minItems: 0
-          description: "Populated as part of `content` capability."
+          "minItems": 0
+          "description": "Populated as part of `content` capability."
       "required":
         - "id"
         - "name"
@@ -6619,6 +6637,13 @@
                   "country": "GB"
       "description": ""
   "parameters":
+    "AcceptLanguage":
+      "in": "header"
+      "name": "Accept-Language"
+      "description": "The HTTP Accept-Language request header indicates the natural language and locale that the client prefers. OCTO supports it as part of `content` capability."
+      "schema":
+        "type": "string"
+      "example": "en-US, en-GB, fr-CA;q=0.8, fr;q=0.7"
     "OctoCapabilitiesHeader":
       "in": "header"
       "name": "Octo-Capabilities"
