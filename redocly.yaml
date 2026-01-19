@@ -1,0 +1,9 @@
+rules:
+  info-license: warn
+  operation-4xx-response: warn
+  operation-operationId: warn
+  no-invalid-schema-examples: warn
+  no-server-example.com: warn
+  no-unused-components: warn
+  security-defined: warn
+  tag-description: warn
