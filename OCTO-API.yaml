@@ -42,9 +42,18 @@
       "operationId": "getProducts"
       "tags":
         - "Products"
+      parameters:
+        - $ref: "#/components/parameters/AcceptLanguage"
+        - $ref: '#/components/parameters/OctoCapabilitiesHeader'
+        - $ref: '#/components/parameters/OctoCapabilitiesQuery'
       "responses":
         "200":
           "description": "OK"
+          "headers":
+            "Available-Languages":
+              $ref: "#/components/headers/Available-Languages"
+            "Content-Language":
+              $ref: "#/components/headers/Content-Language"
           "content":
             "application/json":
               "schema":
@@ -60,7 +69,10 @@
       "operationId": "getProductById"
       "tags":
         - "Products"
-      "parameters":
+      parameters:
+        - $ref: "#/components/parameters/AcceptLanguage"
+        - $ref: '#/components/parameters/OctoCapabilitiesHeader'
+        - $ref: '#/components/parameters/OctoCapabilitiesQuery'
         -
           "schema":
             "type": "string"
@@ -71,6 +83,11 @@
       "responses":
         "200":
           "description": "OK"
+          "headers":
+            "Available-Languages":
+              $ref: "#/components/headers/Available-Languages"
+            "Content-Language":
+              $ref: "#/components/headers/Content-Language"
           "content":
             "application/json":
               "schema":
@@ -3418,6 +3435,102 @@
       "example": "en-GB"
 
   "schemas":
+    "CommentaryFormat": 
+      "type": "string" 
+      "enum": 
+        - "IN_PERSON" 
+        - "RECORDED_AUDIO" 
+        - "WRITTEN" 
+        - "OTHER" 
+ 
+    "Commentary": 
+      "type": "object" 
+      "required": 
+        - "format" 
+        - "language" 
+      "properties": 
+        "format": 
+          $ref: '#/components/schemas/CommentaryFormat' 
+        "language": 
+          type: string
+
+    "Faq": 
+      "type": "object"
+      "description": "Frequently asked questions.\n\nProvided when `content` capability is requested."
+         
+      "required":
+        - "question"
+        - "answer"
+      "properties":
+        "question":
+          "type": "string"
+        "answer":
+          "type": "string"
+
+    "FeatureType": 
+      "type": string 
+      "enum": 
+        - "INCLUSION"
+        - "EXCLUSION"
+        - "HIGHLIGHT"
+        - "PREBOOKING_INFORMATION"
+        - "PREARRIVAL_INFORMATION"
+        - "REDEMPTION_INSTRUCTION"
+        - "ACCESSIBILITY_INFORMATION"
+        - "ADDITIONAL_INFORMATION"
+        - "BOOKING_TERM"
+        - "CANCELLATION_TERM"
+ 
+    "Feature": 
+      "type": object 
+      "description": "Structured features of Product.\n\nProvided when `content` capability is requested."
+      "required": 
+        - type 
+      "properties": 
+        "type": 
+          $ref: '#/components/schemas/FeatureType' 
+        "shortDescription": 
+          "type": 
+            - "string" 
+            - "null" 
+
+    "Identifier": 
+      "type": "object" 
+      additionalProperties: true 
+      "description": "Object with identifier contains exactly one key which is `identifierType` and its `identifierValue`." 
+
+    "LocationType": 
+      "type": "string" 
+      "enum": 
+        - "START" 
+        - "ITINERARY_ITEM" 
+        - "POINT_OF_INTEREST" 
+        - "ADMISSION_INCLUDED" 
+        - "END" 
+        - "REDEMPTION" 
+ 
+    "Location": 
+      "type": "object" 
+      "properties": 
+        "title": 
+          "type": 
+            - "string" 
+            - "null" 
+        "types": 
+          "type": "array" 
+          "items": 
+            $ref: '#/components/schemas/LocationType' 
+        "minutesTo": 
+          "type": 
+            - "integer" 
+            - "null" 
+        "minutesAt": 
+          "type": 
+            - "integer" 
+            - "null" 
+        "place": 
+          $ref: '#/components/schemas/Place'
+
     "Media":
       "type": "object"
       "properties":
@@ -3426,8 +3539,8 @@
         "rel":
           $ref: '#/components/schemas/MediaRel'
         "src":
-          type: string
-          format: uri
+          "type": string
+          "format": uri
         "title":
           "type":
             - "string"
@@ -3461,6 +3574,58 @@
         - "LOGO"
         - "COVER"
         - "GALLERY"
+
+    "Place": 
+      "type": "object" 
+      "required": 
+        - "latitude" 
+        - "longitude" 
+      "properties": 
+        "latitude": 
+          "type": "number" 
+          "format": "float" 
+        "longitude": 
+          "type": "number" 
+          "format": "float" 
+        "postalAddress": 
+          $ref: '#/components/schemas/PostalAddress' 
+        "identifiers": 
+          "type": "array" 
+          "items": 
+            $ref: '#/components/schemas/Identifier' 
+        "sameAs": 
+          "type": "array" 
+          "items": 
+            "type": "string" 
+            "format": "url" 
+
+    "PostalAddress": 
+      "type": "object" 
+      "properties": 
+        "streetAddress": 
+          "type": 
+            - "string" 
+            - "null" 
+        "addressLocality": 
+          "type": 
+            - "string" 
+            - "null" 
+        "addressRegion": 
+          "type": 
+            - "string" 
+            - "null" 
+        "postalCode": 
+          "type": 
+            - "string" 
+            - "null" 
+        "addressCountry": 
+          "type": 
+            - "string" 
+            - "null" 
+        "postOfficeBoxNumber": 
+          "type": 
+            - "string" 
+            - "null"
 
     "Product":
       "type": "object"
@@ -3579,137 +3744,75 @@
           "type": "array"
           "description": "An array of all options for this product. All products must have at least one option."
           "items":
-            "type": "object"
-            "x-examples":
-              "example-1":
-                "id": "DEFAULT"
-                "default": true
-                "internalName": "DEFAULT"
-                "reference": null
-                "availabilityLocalStartTimes":
-                  - "00:00"
-                "cancellationCutoff": "1 hour"
-                "cancellationCutoffAmount": 1
-                "cancellationCutoffUnit": "hour"
-                "requiredContactFields": []
-            "examples":
-              -
-                "id": "DEFAULT"
-                "default": true
-                "internalName": "Private Morning Tour"
-                "reference": "VIP-MORN"
-                "availabilityLocalStartTimes":
-                  - "09:00"
-                "cancellationCutoff": "1 hour"
-                "cancellationCutoffAmount": 1
-                "cancellationCutoffUnit": "hour"
-                "requiredContactFields":
-                  - "firstName"
-                "restrictions":
-                  "minUnits": "null"
-                  "maxUnits": 10
-                "units":
-                  -
-                    "id": "adult_697e3ce8-1860-4cbf-80ad-95857df1f640"
-                    "internalName": "Adult(s)"
-                    "reference": "LR1-01-new"
-                    "type": "YOUTH"
-                    "requiredContactFields":
-                      - "firstName"
-                    "restrictions":
-                      "minAge": 3
-                      "maxAge": 17
-                      "idRequired": true
-                      "minQuantity": 2
-                      "maxQuantity": 7
-                      "paxCount": 1
-                      "accompaniedBy":
-                        - "adult_697e3ce8-1860-4cbf-80ad-95857df1f640"
-            "description": "Product options are subdivisions of the original product that will affect price and / or duration. Within the OCTo spec, every product must contain an option."
-            "properties":
-              "id":
-                "type": "string"
-                "example": "DEFAULT"
-                "description": "The id that identifies this option, it is only unique within the product."
-              "default":
-                "type": "boolean"
-                "description": "`TRUE` identifies the option as default, and should therefore rendered and selected first"
-              "internalName":
-                "type": "string"
-                "description": "The name the supplier calls the option by."
-                "example": "Private Morning Tour"
-              "reference":
-                "type":
-                  - "null"
-                  - "string"
-                "description": "An optional code this supplier might use to identify the product."
-                "example": "VIP-MORN"
-              "availabilityLocalStartTimes":
-                "type": "array"
-                "description": "This will be an array of all possible start times that can be returned during availability. For example an all day attraction may have a single value like `[\"00:00\"]` whilst a tour with multiple departure times may have multiple:`[\"09:00\", \"14:00\", \"17:00\"]`."
-                "items":
-                  "type": "string"
-                  "default": "00:00"
-                  "example": "09:00"
-              "cancellationCutoff":
-                "type": "string"
-                "example": "1 hour"
-                "description": "This is how long before the tour the booking can be still be cancelled."
-              "cancellationCutoffAmount":
-                "type": "integer"
-                "example": 1
-                "description": "The numeric amount for the cutoff."
-              "cancellationCutoffUnit":
-                $ref: "#/components/schemas/DurationUnit"
-              "requiredContactFields":
-                "type": "array"
-                "description": "An array of the contact fields required to confirm a booking. These just apply to the lead traveller on the booking and not for every ticket."
-                "items":
-                  $ref: "#/components/schemas/ContactField"
-              "restrictions":
-                "type": "object"
-                "x-examples":
-                  "example-1":
-                    "minUnits": 0
-                    "maxUnits": 9
-                "description": "An object containing a fixed list of restrictions for booking the option."
-                "examples":
-                  -
-                    "minUnits": null
-                    "maxUnits": 10
-                "properties":
-                  "minUnits":
-                    "type":
-                      - "integer"
-                      - "null"
-                    "example": 0
-                    "description": "The minimum number of tickets that can be purchased in a single booking (null = 0)."
-                  "maxUnits":
-                    "type":
-                      - "integer"
-                      - "null"
-                    "example": 10
-                    "description": "The maximum number of tickets that can be purchased in a single booking (null = unlimited)."
-                "required":
-                  - "minUnits"
-                  - "maxUnits"
-              "units":
-                "type": "array"
-                "description": "The list of ticket types (units) available for sale."
-                "items":
-                  $ref: "#/components/schemas/Unit"
-            "required":
-              - "id"
-              - "default"
-              - "internalName"
-              - "reference"
-              - "availabilityLocalStartTimes"
-              - "cancellationCutoff"
-              - "cancellationCutoffAmount"
-              - "cancellationCutoffUnit"
-              - "requiredContactFields"
-              - "restrictions"
-              - "units"
+            $ref: "#/components/schemas/Option"
+        "title":
+          "type":
+            - "string"
+            - "null"
+          "description": "Public, customer-facing name of the product.\n\nProvided when `content` capability is requested."
+        "shortDescription":
+          "type":
+            - "string"
+            - "null"
+          "description": "Brief marketing summary.\n\nProvided when `content` capability is requested."
+        "description":
+          "type":
+            - "string"
+            - "null"
+          "description": "Long-form product narrative.\n\nProvided when `content` capability is requested."
+        "faq":
+          "type":
+            - "null"
+            - "array"
+          "items":
+            $ref: '#/components/schemas/Faq'
+          "minItems": 0 
+        "media":
+          "type":
+            - "null"
+            - "array"
+          "items":
+            $ref: '#/components/schemas/Media'
+          "minItems": 0
+        "features":
+          "type":
+            - "null"
+            - "array"
+          "items":
+            $ref: '#/components/schemas/Feature'
+          "minItems": 0
+        "categoryLabels": 
+          "type": 
+            - "array" 
+            - "null" 
+          "items": 
+            "type": "string" 
+          "minItems": 0 
+          "description": "Category tags\n\nProvided when `content` capability is requested."
+        "durationMinutesFrom": 
+          "type": 
+            - "integer" 
+            - "null" 
+          "description": "Minimum or exact duration in minutes.\n\nProvided when `content` capability is requested." 
+        "durationMinutesTo": 
+          "type": 
+            - "integer" 
+            - "null" 
+          "description": "Maximum duration if flexible; null if fixed.\n\nProvided when `content` capability is requested."
+        "locations": 
+          "type": 
+            - "array" 
+            - "null" 
+          "items": 
+            $ref: '#/components/schemas/Location' 
+          "minItems": 0 
+        "commentary": 
+          "type": 
+            - "null" 
+            - "array" 
+          "items": 
+            $ref: '#/components/schemas/Commentary' 
+          "minItems": 0 
       "required":
         - "id"
         - "internalName"
@@ -3724,6 +3827,31 @@
         - "deliveryMethods"
         - "redemptionMethod"
         - "options"
+
+    "UnitFeatureType": 
+      "type": string 
+      "enum": 
+        - "INCLUSION" 
+        - "EXCLUSION" 
+        - "HIGHLIGHT" 
+        - "MUST_KNOW" 
+        - "SAFETY_INFORMATION" 
+        - "REDEMPTION_INSTRUCTIONS" 
+        - "ADDITIONAL_INFORMATION" 
+
+    "UnitFeature": 
+      "type": "object" 
+      "description": "Structured features of Product Option Unit.\n\nProvided when `content` capability is requested." 
+      "required": 
+        - "type" 
+      "properties": 
+        "type": 
+          $ref: '#/components/schemas/UnitFeatureType' 
+        "shortDescription": 
+          "type": 
+            - "string" 
+            - "null"
+
     "Unit":
       "type": "object"
       "x-examples":
@@ -3788,6 +3916,29 @@
             "description": ""
         "restrictions":
           $ref: "#/components/schemas/UnitRestrictions"
+        "title": 
+          "type": 
+            - "string" 
+            - "null" 
+          "description": | 
+            Public, customer-facing name of the product option unit 
+   
+            Provided when `content` capability is requested. 
+        "shortDescription": 
+          "type": 
+            - "string" 
+            - "null" 
+          "description": | 
+            Brief marketing summary. 
+   
+            Provided when `content` capability is requested. 
+        "features": 
+          "type": 
+            - "null" 
+            - "array" 
+          "items": 
+            $ref: "#/components/schemas/UnitFeature"
+          "minItems": 0
       "required":
         - "id"
         - "internalName"
@@ -3795,6 +3946,7 @@
         - "requiredContactFields"
         - "restrictions"
       "description": ""
+    
     "UnitRestrictions":
       "type": "object"
       "x-examples":
@@ -4017,6 +4169,42 @@
           "description": "The list of ticket types (units) available for sale."
           "items":
             $ref: "#/components/schemas/Unit"
+        "title": 
+          "type": 
+            - "string" 
+            - "null" 
+          "description": "Public, customer-facing name of the product\n\nProvided when `content` capability is requested."
+        "shortDescription": 
+          "type": 
+            - "string" 
+            - "null" 
+          "description": "Brief marketing summary.\n\nProvided when `content` capability is requested."
+        "description": 
+          "type": 
+            - "string" 
+            - "null" 
+          "description": "Long-form product narrative.\n\nProvided when `content` capability is requested." 
+        "faq": 
+          "type": 
+            - "null" 
+            - "array" 
+          "items": 
+            $ref: '#/components/schemas/Faq' 
+          "minItems": 0 
+        "media": 
+          "type": 
+            - "null" 
+            - "array" 
+          "items": 
+            $ref: '#/components/schemas/Media' 
+          "minItems": 0 
+        "features": 
+          "type": 
+            - "null" 
+            - "array" 
+          "items": 
+            $ref: '#/components/schemas/Feature' 
+          "minItems": 0 
       "required":
         - "id"
         - "default"
