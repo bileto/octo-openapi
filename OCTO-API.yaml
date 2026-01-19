@@ -133,67 +133,7 @@
         "400":
           $ref: "#/components/responses/AvailabilityCalendarError"
       "requestBody":
-        "content":
-          "application/json":
-            "schema":
-              "type": "object"
-              "properties":
-                "productId":
-                  "type": "string"
-                  "example": "6b903d44-dc24-4ca4-ae71-6bde6c4f4854"
-                  "description": "The product id."
-                "optionId":
-                  "type": "string"
-                  "example": "DEFAULT"
-                  "description": "The option id."
-                "localDateStart":
-                  "type": "string"
-                  "example": "2022-05-23"
-                  "description": "Start date to query for (YYYY-MM-DD)."
-                "localDateEnd":
-                  "type": "string"
-                  "example": "2022-05-29"
-                  "description": "End date to query for (YYYY-MM-DD)."
-                "units":
-                  "type": "array"
-                  "description": "A list of units."
-                  "items":
-                    "type": "object"
-                    "properties":
-                      "id":
-                        "type": "string"
-                        "description": "The unit id."
-                      "quantity":
-                        "type": "integer"
-                        "description": "The quantity of the unit."
-                    "required":
-                      - "id"
-                      - "quantity"
-              "required":
-                - "productId"
-                - "optionId"
-                - "localDateStart"
-                - "localDateEnd"
-            "examples":
-              "Date Range":
-                "value":
-                  "productId": "6b903d44-dc24-4ca4-ae71-6bde6c4f4854"
-                  "optionId": "DEFAULT"
-                  "localDateStart": "2022-06-14"
-                  "localDateEnd": "2022-06-16"
-              "WITH UNITS":
-                "value":
-                  "productId": "6b903d44-dc24-4ca4-ae71-6bde6c4f4854"
-                  "optionId": "DEFAULT"
-                  "localDateStart": "2022-06-14"
-                  "localDateEnd": "2022-06-16"
-                  "units":
-                    -
-                      "id": "adult"
-                      "quantity": 2
-                    -
-                      "id": "child"
-                      "quantity": 1
+        $ref: "#/components/requestBodies/AvailabilityCalendarRequestBody"
       "description": "This endpoint is highly optimised and will return a single object per day. It's designed to be queried for large date ranges and the result is used to populate an availability calendar.\n\nWhen the end user selects an open date you can call on `/availability` endpoint to get the `availabilityId` to create the booking."
   "/availability":
     "post":
@@ -256,80 +196,7 @@
         "400":
           $ref: "#/components/responses/AvailabilityCheckError"
       "requestBody":
-        "content":
-          "application/json":
-            "schema":
-              "type": "object"
-              "properties":
-                "productId":
-                  "type": "string"
-                  "example": "6b903d44-dc24-4ca4-ae71-6bde6c4f4854"
-                  "description": "The product id."
-                "optionId":
-                  "type": "string"
-                  "example": "DEFAULT"
-                  "description": "The option id."
-                "localDateStart":
-                  "type": "string"
-                  "example": "2022-05-23"
-                  "format": "date"
-                  "description": "Start date to query for (YYYY-MM-DD). Required if `localDateEnd` is set."
-                "localDateEnd":
-                  "type": "string"
-                  "format": "date"
-                  "example": "2022-05-29"
-                  "description": "End date to query for (YYYY-MM-DD). Required if `localDateStart` is set."
-                "availabilityIds":
-                  "type": "array"
-                  "example":
-                    - "2022-05-23T00:00:00+01:00"
-                  "description": "Filter the results by the given ids."
-                  "items":
-                    "type": "string"
-                "units":
-                  "type": "array"
-                  "description": "A list of units."
-                  "items":
-                    "type": "object"
-                    "properties":
-                      "id":
-                        "type": "string"
-                        "description": "The unit id."
-                      "quantity":
-                        "type": "integer"
-                        "description": "The quantity of the unit."
-                    "required":
-                      - "id"
-                      - "quantity"
-              "required":
-                - "productId"
-                - "optionId"
-            "examples":
-              "Date Range":
-                "value":
-                  "productId": "6b903d44-dc24-4ca4-ae71-6bde6c4f4854"
-                  "optionId": "DEFAULT"
-                  "localDateStart": "2022-05-23"
-                  "localDateEnd": "2022-05-29"
-              "Availability IDs":
-                "value":
-                  "productId": "6b903d44-dc24-4ca4-ae71-6bde6c4f4854"
-                  "optionId": "DEFAULT"
-                  "availabilityIds":
-                    - "2022-05-23T00:00:00+01:00"
-              "With Units":
-                "value":
-                  "productId": "6b903d44-dc24-4ca4-ae71-6bde6c4f4854"
-                  "optionId": "DEFAULT"
-                  "localDateStart": "2022-05-23"
-                  "localDateEnd": "2022-05-29"
-                  "units":
-                    -
-                      "id": "adult"
-                      "quantity": 2
-                    -
-                      "id": "child"
-                      "quantity": 1
+        $ref: "#/components/requestBodies/AvailabilityCheckRequestBody"
       "description": "This endpoint is slightly slower as it will return an object for each individual departure time (or day). You have to perform this step to retrieve an `availabilityId` in order to confirm a sale, so if you just want to use this endpoint and skip the calendar endpoint then that's perfectly ok.\n\nYou must pass in one of the following combinations of parameters for this endpoint:\n- `localDate`\n- `localeDateStart` and `localDateEnd`\n- `availabilityIds`"
   "/bookings":
     "post":
@@ -14689,6 +14556,91 @@
         - "vacancies"
         - "capacity"
         - "openingHours"
+    "AvailabilityCalendarRequest":
+      "type": "object"
+      "properties":
+                "productId":
+                  "type": "string"
+                  "example": "6b903d44-dc24-4ca4-ae71-6bde6c4f4854"
+                  "description": "The product id."
+                "optionId":
+                  "type": "string"
+                  "example": "DEFAULT"
+                  "description": "The option id."
+                "localDateStart":
+                  "type": "string"
+                  "example": "2022-05-23"
+                  "description": "Start date to query for (YYYY-MM-DD)."
+                "localDateEnd":
+                  "type": "string"
+                  "example": "2022-05-29"
+                  "description": "End date to query for (YYYY-MM-DD)."
+                "units":
+                  "type": "array"
+                  "description": "A list of units."
+                  "items":
+                    "type": "object"
+                    "properties":
+                      "id":
+                        "type": "string"
+                        "description": "The unit id."
+                      "quantity":
+                        "type": "integer"
+                        "description": "The quantity of the unit."
+                    "required":
+                      - "id"
+                      - "quantity"
+      "required":
+                - "productId"
+                - "optionId"
+                - "localDateStart"
+                - "localDateEnd"
+    "AvailabilityCheckRequest":
+      "type": "object"
+      "properties":
+        "productId":
+          "type": "string"
+          "example": "6b903d44-dc24-4ca4-ae71-6bde6c4f4854"
+          "description": "The product id."
+        "optionId":
+          "type": "string"
+          "example": "DEFAULT"
+          "description": "The option id."
+        "localDateStart":
+          "type": "string"
+          "example": "2022-05-23"
+          "format": "date"
+          "description": "Start date to query for (YYYY-MM-DD). Required if `localDateEnd` is set."
+        "localDateEnd":
+          "type": "string"
+          "format": "date"
+          "example": "2022-05-29"
+          "description": "End date to query for (YYYY-MM-DD). Required if `localDateStart` is set."
+        "availabilityIds":
+          "type": "array"
+          "example":
+            - "2022-05-23T00:00:00+01:00"
+          "description": "Filter the results by the given ids."
+          "items":
+            "type": "string"
+        "units":
+          "type": "array"
+          "description": "A list of units."
+          "items":
+            "type": "object"
+            "properties":
+              "id":
+                "type": "string"
+                "description": "The unit id."
+              "quantity":
+                "type": "integer"
+                "description": "The quantity of the unit."
+            "required":
+              - "id"
+              - "quantity"
+      "required":
+        - "productId"
+        - "optionId"
     "OpeningHours":
       "type": "object"
       "x-examples":
@@ -17954,6 +17906,62 @@
       "type": "http"
       "scheme": "bearer"
   "requestBodies":
+    "AvailabilityCalendarRequestBody":
+      "content":
+          "application/json":
+            "schema":
+              $ref: "#/components/schemas/AvailabilityCalendarRequest"
+            "examples":
+              "Date Range":
+                "value":
+                  "productId": "6b903d44-dc24-4ca4-ae71-6bde6c4f4854"
+                  "optionId": "DEFAULT"
+                  "localDateStart": "2022-06-14"
+                  "localDateEnd": "2022-06-16"
+              "WITH UNITS":
+                "value":
+                  "productId": "6b903d44-dc24-4ca4-ae71-6bde6c4f4854"
+                  "optionId": "DEFAULT"
+                  "localDateStart": "2022-06-14"
+                  "localDateEnd": "2022-06-16"
+                  "units":
+                    -
+                      "id": "adult"
+                      "quantity": 2
+                    -
+                      "id": "child"
+                      "quantity": 1
+    "AvailabilityCheckRequestBody":
+      "content":
+          "application/json":
+            "schema":
+              $ref: "#/components/schemas/AvailabilityCheckRequest"
+            "examples":
+              "Date Range":
+                "value":
+                  "productId": "6b903d44-dc24-4ca4-ae71-6bde6c4f4854"
+                  "optionId": "DEFAULT"
+                  "localDateStart": "2022-05-23"
+                  "localDateEnd": "2022-05-29"
+              "Availability IDs":
+                "value":
+                  "productId": "6b903d44-dc24-4ca4-ae71-6bde6c4f4854"
+                  "optionId": "DEFAULT"
+                  "availabilityIds":
+                    - "2022-05-23T00:00:00+01:00"
+              "With Units":
+                "value":
+                  "productId": "6b903d44-dc24-4ca4-ae71-6bde6c4f4854"
+                  "optionId": "DEFAULT"
+                  "localDateStart": "2022-05-23"
+                  "localDateEnd": "2022-05-29"
+                  "units":
+                    -
+                      "id": "adult"
+                      "quantity": 2
+                    -
+                      "id": "child"
+                      "quantity": 1
     "BookingCancellation":
       "content":
         "application/json":
