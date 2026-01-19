@@ -3627,6 +3627,12 @@
             - "string" 
             - "null"
 
+    "PricingUnit": 
+      "type": string 
+      "enum": 
+        - UNIT 
+        - BOOKING 
+
     "Product":
       "type": "object"
       "x-examples":
@@ -3812,7 +3818,21 @@
             - "array" 
           "items": 
             $ref: '#/components/schemas/Commentary' 
+          "minItems": 0
+        "defaultCurrency": 
+          "description": "Default currency of the product.\n\nProvided when `pricing` capability is requested." 
+          "type": 
+            - "string" 
+            - "null" 
+        "availableCurrencies": 
+          "type": 
+            - "array" 
+            - "null" 
+          "items": 
+            "type" : "string" 
           "minItems": 0 
+        "pricingPer": 
+          $ref: '#/components/schemas/PricingUnit'
       "required":
         - "id"
         - "internalName"
