@@ -24,6 +24,8 @@
             "application/json":
               "schema":
                 $ref: "#/components/schemas/Supplier"
+        "400":
+          $ref: "#/components/responses/GetSupplierError"
       "description": "Returns the supplier and associated contact details."
   "/products":
     "get":
@@ -40,6 +42,8 @@
                 "type": "array"
                 "items":
                   $ref: "#/components/schemas/Product"
+        "400":
+          $ref: "#/components/responses/GetProductError"
       "description": "Fetch the list of products."
   "/products/{id}":
     "get":
@@ -62,6 +66,8 @@
             "application/json":
               "schema":
                 $ref: "#/components/schemas/Product"
+        "400":
+          $ref: "#/components/responses/GetProductError"
       "description": "Fetch the product for the given id."
   "/availability/calendar":
     "post":
@@ -387,98 +393,7 @@
           "name": "Content-Type"
           "description": "Required field on all POST requests"
       "requestBody":
-        "content":
-          "application/json":
-            "schema":
-              "type": "object"
-              "x-examples":
-                "example-1":
-                  "resellerReference": "string"
-                  "productId": "string"
-                  "optionId": "string"
-                  "availabilityId": "string"
-                  "expirationMinutes": "string"
-                  "freesale": true
-                  "redeemed": true
-                  "notes": "string"
-                  "emailReceipt": true
-                  "unitItems":
-                    -
-                      "uuid": "string"
-                      "unitId": "string"
-                      "resellerReference": "string"
-                  "contact":
-                    "fullName": "string"
-                    "firstName": "string"
-                    "lastName": "string"
-                    "emailAddress": "string"
-                    "phoneNumber": "string"
-                    "country": "string"
-                    "notes": "string"
-                    "locales":
-                      - "string"
-              "properties":
-                "uuid":
-                  "type": "string"
-                  "description": "A unique UUID to identify the booking. Setting this value acts like an idempotency key preventing you from double booking."
-                  "format": "uuid"
-                  "example": "559aed3d-6d5b-4fe0-bfca-99f5e7218a56"
-                "productId":
-                  "type": "string"
-                  "description": "The product ID for this booking."
-                  "example": "6b903d44-dc24-4ca4-ae71-6bde6c4f4854"
-                "optionId":
-                  "type": "string"
-                  "description": "The option ID for this booking."
-                  "example": "DEFAULT"
-                "availabilityId":
-                  "type": "string"
-                  "description": "The availability ID for the selected timeslot."
-                  "example": "2021-10-27T00:00:00-04:00"
-                "expirationMinutes":
-                  "type": "integer"
-                  "description": "How many minutes to reserve the availability, otherwise defaults to the supplier default amount."
-                  "example": 30
-                "notes":
-                  "type": "string"
-                  "description": "Optional notes for the booking."
-                  "example": "Optional notes"
-                "unitItems":
-                  "type": "array"
-                  "description": "An list of unit items that will be included in the booking."
-                  "items":
-                    "type": "object"
-                    "properties":
-                      "uuid":
-                        "type": "string"
-                        "description": "A unique UUID to identify the unit, same as the booking uuid except per unit."
-                        "example": "3b1bc2ee-3155-4738-9471-f49842a07327"
-                      "unitId":
-                        "type": "string"
-                        "description": "The unit item unit ID."
-                        "example": "youth_f6446706-885a-437c-8461-efd6d7080910"
-                    "required":
-                      - "unitId"
-              "required":
-                - "productId"
-                - "optionId"
-                - "availabilityId"
-                - "unitItems"
-            "examples":
-              "Reserve Booking":
-                "value":
-                  "productId": "1a7213eb-3a33-4cbb-b114-64d771c201ac"
-                  "optionId": "DEFAULT"
-                  "availabilityId": "2020-07-01T14:30:00-05:00"
-                  "notes": "Optional notes for the booking"
-                  "unitItems":
-                    -
-                      "unitId": "adult"
-                    -
-                      "unitId": "adult"
-                    -
-                      "unitId": "child"
-        "description": ""
+        $ref: "#/components/requestBodies/BookingReservation"
       "description": "Reserving availability when making a booking. The steps to make a reservation are:\n\n1. **Check Availability**: Check the availability on the [/availability](docs/octo/branches/main/5b08f5f75e75d-availability-check) endpoint to retrieve an `availabilityId`\n2. **Booking Reservation** (this step): Create a booking that reserves the availability while you collect payment and contact information from the customer. The booking will remain with status `ON_HOLD` until the booking is confirmed or the reservation hold expires.\n\nThe availability for the booking is held for the amount of time equal to the`expirationMinutes` parameter (if provided), up to an internal limit set by either the supplier or the OCTo provider. The `utc_expires_at` parameter in the response object will indicate when a reservtion will expire. A reservation can be extended by calling the [/bookings/{uuid}/extend](docs/octo/branches/main/2c7924ab9128f-extend-reservation) endpoint.\n\nA reserved booking can be confirmed after the customer finalizes their choice on the [/bookings/{uuid}/confirm](docs/octo/branches/main/614d1613b2d70-booking-confirmation) endpoint provided the reservation had not expired.\n"
     "get":
       "summary": "Get Bookings"
@@ -706,7 +621,7 @@
                                 "deliveryFormat": "QRCODE"
                                 "deliveryValue": "A89VR8"
         "400":
-          $ref: "#/components/responses/BookingGetError"
+          $ref: "#/components/responses/BookingListError"
       "security":
         -
           "Auth": []
@@ -1131,19 +1046,7 @@
                               "deliveryFormat": "QRCODE"
                               "deliveryValue": "EO6Q0P"
         "400":
-          "description": "Example response"
-          "content":
-            "application/json":
-              "schema":
-                "properties":
-                  "id":
-                    "type": "string"
-              "examples":
-                "INVALID_BOOKING_UUID":
-                  "value":
-                    "error": "INVALID_BOOKING_UUID"
-                    "errorMessage": "The uuid was already used, missing or invalid"
-                    "uuid": "bbbb6227-54fc-4c32-9ed7-dc3eb99966ea"
+          $ref: "#/components/responses/BookingGetError"
       "operationId": "get-bookings-:uuid"
       "description": "Fetch the status of an existing booking."
     "patch":
@@ -1331,17 +1234,7 @@
                         "type": "boolean"
                         "description": "Whether an `availabilityId` is required when creating a booking. Without this the booking will be open-dated and not have a specified travel date."
                       "availabilityType":
-                        "type": "string"
-                        "title": "AvailabilityType"
-                        "x-stoplight":
-                          "id": "n70vwjh7kvmxk"
-                        "enum":
-                          - "START_TIME"
-                          - "OPENING_HOURS"
-                        "description": "What type of availability this product has, possible values are:\n`START_TIME` if there are fixed departure times which you must pick one. Typical for day tours or activities.\n`OPENING_HOURS` if you just select a date and can visit any time when the venue is open."
-                        "example": "START_TIME"
-                        "examples":
-                          - "START_TIME"
+                        $ref: "#/components/schemas/AvailabilityType"
                       "deliveryFormats":
                         "type": "array"
                         "description": "An array of formats the API will deliver the tickets as. Possible values are:\n`QRCODE` A code to be presented as a QR CODE barcode\n`CODE128A` code to be presented as a CODE 128 barcode\n`PDF_URL` A URL to a PDF file which contains all the ticket details"
@@ -1439,37 +1332,12 @@
                               "example": 1
                               "description": "The numeric amount for the cutoff."
                             "cancellationCutoffUnit":
-                              "type": "string"
-                              "title": "DurationUnit"
-                              "x-stoplight":
-                                "id": "etuhjhtharyrt"
-                              "enum":
-                                - "hour"
-                                - "minute"
-                                - "day"
-                              "example": "hour"
-                              "description": "Time units used to determine duration. Three values are available: `hour`, `minute`, `day`."
-                              "examples":
-                                - "hour"
+                              $ref: "#/components/schemas/DurationUnit"
                             "requiredContactFields":
                               "type": "array"
                               "description": "An array of the contact fields required to confirm a booking. These just apply to the lead traveller on the booking and not for every ticket."
                               "items":
-                                "type": "string"
-                                "title": "ContactField"
-                                "x-stoplight":
-                                  "id": "5qud985l1i6ih"
-                                "enum":
-                                  - "firstName"
-                                  - "lastName"
-                                  - "emailAddress"
-                                  - "phoneNumber"
-                                  - "country"
-                                  - "notes"
-                                  - "locales"
-                                "examples":
-                                  - "firstName"
-                                "description": ""
+                                $ref: "#/components/schemas/ContactField"
                             "restrictions":
                               "type": "object"
                               "x-examples":
@@ -1614,37 +1482,12 @@
                         "example": 1
                         "description": "The numeric amount for the cutoff."
                       "cancellationCutoffUnit":
-                        "type": "string"
-                        "title": "DurationUnit"
-                        "x-stoplight":
-                          "id": "etuhjhtharyrt"
-                        "enum":
-                          - "hour"
-                          - "minute"
-                          - "day"
-                        "example": "hour"
-                        "description": "Time units used to determine duration. Three values are available: `hour`, `minute`, `day`."
-                        "examples":
-                          - "hour"
+                        $ref: "#/components/schemas/DurationUnit"
                       "requiredContactFields":
                         "type": "array"
                         "description": "An array of the contact fields required to confirm a booking. These just apply to the lead traveller on the booking and not for every ticket."
                         "items":
-                          "type": "string"
-                          "title": "ContactField"
-                          "x-stoplight":
-                            "id": "5qud985l1i6ih"
-                          "enum":
-                            - "firstName"
-                            - "lastName"
-                            - "emailAddress"
-                            - "phoneNumber"
-                            - "country"
-                            - "notes"
-                            - "locales"
-                          "examples":
-                            - "firstName"
-                          "description": ""
+                          $ref: "#/components/schemas/ContactField"
                       "restrictions":
                         "type": "object"
                         "x-examples":
@@ -1749,28 +1592,7 @@
                         "type": "array"
                         "description": "The opening hours from the original availability object."
                         "items":
-                          "type": "object"
-                          "x-examples":
-                            "example-1":
-                              "from": "08:00"
-                              "to": "18:30"
-                          "description": "A list of opening hours that the product is open on this day."
-                          "properties":
-                            "from":
-                              "type": "string"
-                              "example": "08:00"
-                              "description": "When this product opens (HH:MM)"
-                            "to":
-                              "type": "string"
-                              "example": "16:00"
-                              "description": "When this product closes (HH:MM)"
-                          "required":
-                            - "from"
-                            - "to"
-                          "examples":
-                            -
-                              "from": "08:00"
-                              "to": "16:00"
+                          $ref: "#/components/schemas/OpeningHours"
                   "contact":
                     "type": "object"
                     "x-examples":
@@ -2015,86 +1837,9 @@
                               "type": "array"
                               "description": "This is the array of the contact information PER ticket that the supplier expects."
                               "items":
-                                "type": "string"
-                                "title": "ContactField"
-                                "x-stoplight":
-                                  "id": "5qud985l1i6ih"
-                                "enum":
-                                  - "firstName"
-                                  - "lastName"
-                                  - "emailAddress"
-                                  - "phoneNumber"
-                                  - "country"
-                                  - "notes"
-                                  - "locales"
-                                "examples":
-                                  - "firstName"
-                                "description": ""
+                                $ref: "#/components/schemas/ContactField"
                             "restrictions":
-                              "type": "object"
-                              "x-examples":
-                                "example-1":
-                                  "minAge": 0
-                                  "maxAge": 100
-                                  "idRequired": false
-                                  "minQuantity": 1
-                                  "maxQuantity": null
-                                  "paxCount": 4
-                                  "accompaniedBy": []
-                              "description": "unit restrictions"
-                              "examples":
-                                -
-                                  "minAge": 3
-                                  "maxAge": 17
-                                  "idRequired": true
-                                  "minQuantity": 2
-                                  "maxQuantity": 7
-                                  "paxCount": 1
-                                  "accompaniedBy":
-                                    - "adult_697e3ce8-1860-4cbf-80ad-95857df1f640"
-                              "title": "UnitRestrictions"
-                              "properties":
-                                "minAge":
-                                  "type": "integer"
-                                  "example": 3
-                                  "description": "This is the minumum age this unit can be sold to"
-                                "maxAge":
-                                  "type": "integer"
-                                  "example": 17
-                                  "description": "This is the maximum age this unit can be sold to"
-                                "idRequired":
-                                  "type": "boolean"
-                                  "description": "This is whether a form of identification will be required at redemption point (eg. student card)"
-                                "minQuantity":
-                                  "type":
-                                    - "integer"
-                                    - "null"
-                                  "example": 2
-                                  "description": "This is if there is a minimum amount of units to be chosen for purchase (eg. 2)"
-                                "maxQuantity":
-                                  "type":
-                                    - "null"
-                                    - "integer"
-                                  "example": 7
-                                  "description": "This is if there is a maximum amount of units to be chosen for purchase (eg. 7)"
-                                "paxCount":
-                                  "type": "integer"
-                                  "description": "This is the amount of people each unit counts as (eg. family == 4pax)"
-                                  "example": 1
-                                "accompaniedBy":
-                                  "type": "array"
-                                  "description": "This is if the unit needs to be accompanied by another unit (eg. Infant with Adult)"
-                                  "items":
-                                    "type": "string"
-                                    "example": "adult_697e3ce8-1860-4cbf-80ad-95857df1f640"
-                              "required":
-                                - "minAge"
-                                - "maxAge"
-                                - "idRequired"
-                                - "minQuantity"
-                                - "maxQuantity"
-                                - "paxCount"
-                                - "accompaniedBy"
+                              $ref: "#/components/schemas/UnitRestrictions"
                           "required":
                             - "id"
                             - "internalName"
@@ -2190,62 +1935,7 @@
                         "ticket":
                           "oneOf":
                             -
-                              "type": "object"
-                              "x-examples":
-                                "example-1":
-                                  "redemptionMethod": "DIGITAL"
-                                  "utcRedeemedAt": null
-                                  "deliveryOptions":
-                                    -
-                                      "deliveryFormat": "QRCODE"
-                                      "deliveryValue": "!1|El3f0wUmcnrEmviMcR9qwqC9hvfrcWc6cZcRcrcR|yrirfZfqHPj40mvhpw2XzX|q7FF77QqFD7fDhr9"
-                                    -
-                                      "deliveryFormat": "PDF_URL"
-                                      "deliveryValue": "https://api.ventrata.com/octo/pdf?booking=36d2d844-121d-453c-b514-de027caaf27f&ticket=72419a19-c58c-46a0-b316-13509de43909"
-                              "examples":
-                                -
-                                  "redemptionMethod": "DIGITAL"
-                                  "utcRedeemedAt": null
-                                  "deliveryOptions":
-                                    -
-                                      "deliveryFormat": "QRCODE"
-                                      "deliveryValue": "string"
-                              "properties":
-                                "redemptionMethod":
-                                  $ref: "#/components/schemas/RedemptionMethod"
-                                "utcRedeemedAt":
-                                  "type":
-                                    - "null"
-                                    - "string"
-                                  "description": "The ISO8601 date in UTC indicating when the ticket was used at the attraction."
-                                "deliveryOptions":
-                                  "type": "array"
-                                  "items":
-                                    "type": "object"
-                                    "properties":
-                                      "deliveryFormat":
-                                        "type": "string"
-                                        "title": "DeliveryFormat"
-                                        "x-stoplight":
-                                          "id": "xo5qi6jemvvhc"
-                                        "enum":
-                                          - "PDF_URL"
-                                          - "QRCODE"
-                                        "description": "The format for the delivery option possible values are:\n`QRCODE` You should generate the QR Code yourself on a ticket.\n`PDF_URL` Where you use the generated tickets as a PDF."
-                                        "example": "QRCODE"
-                                        "examples":
-                                          - "QRCODE"
-                                      "deliveryValue":
-                                        "type": "string"
-                                        "description": "The format for the delivery option possible values are:\n`QRCODE` You should generate the QR Code yourself on a ticket.\n`PDF_URL` Where you use the generated tickets as a PDF.\n"
-                                    "required":
-                                      - "deliveryFormat"
-                                      - "deliveryValue"
-                              "required":
-                                - "redemptionMethod"
-                                - "utcRedeemedAt"
-                                - "deliveryOptions"
-                              "description": ""
+                              $ref: "#/components/schemas/Ticket"
                             -
                               "type": "null"
                       "required":
@@ -2535,57 +2225,7 @@
                               "deliveryFormat": "QRCODE"
                               "deliveryValue": "A89VR8"
         "400":
-          "description": "Example response"
-          "content":
-            "application/json":
-              "schema":
-                "type": "object"
-                "properties":
-                  "error":
-                    "type": "string"
-                  "errorMessage":
-                    "type": "string"
-                  "productId":
-                    "type": "string"
-                  "optionId":
-                    "type": "string"
-                  "unitId":
-                    "type": "string"
-                  "uuid":
-                    "type": "string"
-                "required":
-                  - "error"
-                  - "errorMessage"
-              "examples":
-                "INVALID_PRODUCT_ID":
-                  "value":
-                    "error": "INVALID_PRODUCT_ID"
-                    "errorMessage": "The productId was missing or invalid"
-                    "productId": "cc2a6d56-6efe-426f-99c9-6eb10e341565"
-                "INVALID_OPTION_ID":
-                  "value":
-                    "error": "INVALID_OPTION_ID"
-                    "errorMessage": "The optionId was missing or invalid"
-                    "optionId": "681fea0f-196e-45da-bec7-467bfacb1d87"
-                "INVALID_UNIT_ID":
-                  "value":
-                    "error": "INVALID_UNIT_ID"
-                    "errorMessage": "The unitId was missing or invalid"
-                    "unitId": "senior"
-                "INVALID_AVAILABILITY_ID":
-                  "value":
-                    "error": "INVALID_AVAILABILITY_ID"
-                    "errorMessage": "The availabilityId was missing or invalid"
-                    "availabilityId": "2022-03-12T00:00:00+00:00"
-                "INVALID_BOOKING_UUID":
-                  "value":
-                    "error": "INVALID_BOOKING_UUID"
-                    "errorMessage": "The uuid was already used, missing or invalid"
-                    "uuid": "bbbb6227-54fc-4c32-9ed7-dc3eb99966ea"
-                "UNPROCESSABLE_ENTITY":
-                  "value":
-                    "error": "UNPROCESSABLE_ENTITY"
-                    "errorMessage": "The request body is technically correct but cannot be processed for other reasons. e.g. you tried to cancel a booking after the cancellation cutoff had elapsed"
+          $ref: "#/components/responses/BookingExtendError"
       "requestBody":
         $ref: "#/components/requestBodies/BookingUpdate"
       "parameters":
@@ -2800,17 +2440,7 @@
                         "type": "boolean"
                         "description": "Whether an `availabilityId` is required when creating a booking. Without this the booking will be open-dated and not have a specified travel date."
                       "availabilityType":
-                        "type": "string"
-                        "title": "AvailabilityType"
-                        "x-stoplight":
-                          "id": "n70vwjh7kvmxk"
-                        "enum":
-                          - "START_TIME"
-                          - "OPENING_HOURS"
-                        "description": "What type of availability this product has, possible values are:\n`START_TIME` if there are fixed departure times which you must pick one. Typical for day tours or activities.\n`OPENING_HOURS` if you just select a date and can visit any time when the venue is open."
-                        "example": "START_TIME"
-                        "examples":
-                          - "START_TIME"
+                        $ref: "#/components/schemas/AvailabilityType"
                       "deliveryFormats":
                         "type": "array"
                         "description": "An array of formats the API will deliver the tickets as. Possible values are:\n`QRCODE` A code to be presented as a QR CODE barcode\n`CODE128A` code to be presented as a CODE 128 barcode\n`PDF_URL` A URL to a PDF file which contains all the ticket details"
@@ -2908,37 +2538,12 @@
                               "example": 1
                               "description": "The numeric amount for the cutoff."
                             "cancellationCutoffUnit":
-                              "type": "string"
-                              "title": "DurationUnit"
-                              "x-stoplight":
-                                "id": "etuhjhtharyrt"
-                              "enum":
-                                - "hour"
-                                - "minute"
-                                - "day"
-                              "example": "hour"
-                              "description": "Time units used to determine duration. Three values are available: `hour`, `minute`, `day`."
-                              "examples":
-                                - "hour"
+                              $ref: "#/components/schemas/DurationUnit"
                             "requiredContactFields":
                               "type": "array"
                               "description": "An array of the contact fields required to confirm a booking. These just apply to the lead traveller on the booking and not for every ticket."
                               "items":
-                                "type": "string"
-                                "title": "ContactField"
-                                "x-stoplight":
-                                  "id": "5qud985l1i6ih"
-                                "enum":
-                                  - "firstName"
-                                  - "lastName"
-                                  - "emailAddress"
-                                  - "phoneNumber"
-                                  - "country"
-                                  - "notes"
-                                  - "locales"
-                                "examples":
-                                  - "firstName"
-                                "description": ""
+                                $ref: "#/components/schemas/ContactField"
                             "restrictions":
                               "type": "object"
                               "x-examples":
@@ -3083,37 +2688,12 @@
                         "example": 1
                         "description": "The numeric amount for the cutoff."
                       "cancellationCutoffUnit":
-                        "type": "string"
-                        "title": "DurationUnit"
-                        "x-stoplight":
-                          "id": "etuhjhtharyrt"
-                        "enum":
-                          - "hour"
-                          - "minute"
-                          - "day"
-                        "example": "hour"
-                        "description": "Time units used to determine duration. Three values are available: `hour`, `minute`, `day`."
-                        "examples":
-                          - "hour"
+                        $ref: "#/components/schemas/DurationUnit"
                       "requiredContactFields":
                         "type": "array"
                         "description": "An array of the contact fields required to confirm a booking. These just apply to the lead traveller on the booking and not for every ticket."
                         "items":
-                          "type": "string"
-                          "title": "ContactField"
-                          "x-stoplight":
-                            "id": "5qud985l1i6ih"
-                          "enum":
-                            - "firstName"
-                            - "lastName"
-                            - "emailAddress"
-                            - "phoneNumber"
-                            - "country"
-                            - "notes"
-                            - "locales"
-                          "examples":
-                            - "firstName"
-                          "description": ""
+                          $ref: "#/components/schemas/ContactField"
                       "restrictions":
                         "type": "object"
                         "x-examples":
@@ -3218,28 +2798,7 @@
                         "type": "array"
                         "description": "The opening hours from the original availability object."
                         "items":
-                          "type": "object"
-                          "x-examples":
-                            "example-1":
-                              "from": "08:00"
-                              "to": "18:30"
-                          "description": "A list of opening hours that the product is open on this day."
-                          "properties":
-                            "from":
-                              "type": "string"
-                              "example": "08:00"
-                              "description": "When this product opens (HH:MM)"
-                            "to":
-                              "type": "string"
-                              "example": "16:00"
-                              "description": "When this product closes (HH:MM)"
-                          "required":
-                            - "from"
-                            - "to"
-                          "examples":
-                            -
-                              "from": "08:00"
-                              "to": "16:00"
+                          $ref: "#/components/schemas/OpeningHours"
                   "contact":
                     "type": "object"
                     "x-examples":
@@ -3484,86 +3043,9 @@
                               "type": "array"
                               "description": "This is the array of the contact information PER ticket that the supplier expects."
                               "items":
-                                "type": "string"
-                                "title": "ContactField"
-                                "x-stoplight":
-                                  "id": "5qud985l1i6ih"
-                                "enum":
-                                  - "firstName"
-                                  - "lastName"
-                                  - "emailAddress"
-                                  - "phoneNumber"
-                                  - "country"
-                                  - "notes"
-                                  - "locales"
-                                "examples":
-                                  - "firstName"
-                                "description": ""
+                                $ref: "#/components/schemas/ContactField"
                             "restrictions":
-                              "type": "object"
-                              "x-examples":
-                                "example-1":
-                                  "minAge": 0
-                                  "maxAge": 100
-                                  "idRequired": false
-                                  "minQuantity": 1
-                                  "maxQuantity": null
-                                  "paxCount": 4
-                                  "accompaniedBy": []
-                              "description": "unit restrictions"
-                              "examples":
-                                -
-                                  "minAge": 3
-                                  "maxAge": 17
-                                  "idRequired": true
-                                  "minQuantity": 2
-                                  "maxQuantity": 7
-                                  "paxCount": 1
-                                  "accompaniedBy":
-                                    - "adult_697e3ce8-1860-4cbf-80ad-95857df1f640"
-                              "title": "UnitRestrictions"
-                              "properties":
-                                "minAge":
-                                  "type": "integer"
-                                  "example": 3
-                                  "description": "This is the minumum age this unit can be sold to"
-                                "maxAge":
-                                  "type": "integer"
-                                  "example": 17
-                                  "description": "This is the maximum age this unit can be sold to"
-                                "idRequired":
-                                  "type": "boolean"
-                                  "description": "This is whether a form of identification will be required at redemption point (eg. student card)"
-                                "minQuantity":
-                                  "type":
-                                    - "integer"
-                                    - "null"
-                                  "example": 2
-                                  "description": "This is if there is a minimum amount of units to be chosen for purchase (eg. 2)"
-                                "maxQuantity":
-                                  "type":
-                                    - "null"
-                                    - "integer"
-                                  "example": 7
-                                  "description": "This is if there is a maximum amount of units to be chosen for purchase (eg. 7)"
-                                "paxCount":
-                                  "type": "integer"
-                                  "description": "This is the amount of people each unit counts as (eg. family == 4pax)"
-                                  "example": 1
-                                "accompaniedBy":
-                                  "type": "array"
-                                  "description": "This is if the unit needs to be accompanied by another unit (eg. Infant with Adult)"
-                                  "items":
-                                    "type": "string"
-                                    "example": "adult_697e3ce8-1860-4cbf-80ad-95857df1f640"
-                              "required":
-                                - "minAge"
-                                - "maxAge"
-                                - "idRequired"
-                                - "minQuantity"
-                                - "maxQuantity"
-                                - "paxCount"
-                                - "accompaniedBy"
+                              $ref: "#/components/schemas/UnitRestrictions"
                           "required":
                             - "id"
                             - "internalName"
@@ -3659,62 +3141,7 @@
                         "ticket":
                           "oneOf":
                             -
-                              "type": "object"
-                              "x-examples":
-                                "example-1":
-                                  "redemptionMethod": "DIGITAL"
-                                  "utcRedeemedAt": null
-                                  "deliveryOptions":
-                                    -
-                                      "deliveryFormat": "QRCODE"
-                                      "deliveryValue": "!1|El3f0wUmcnrEmviMcR9qwqC9hvfrcWc6cZcRcrcR|yrirfZfqHPj40mvhpw2XzX|q7FF77QqFD7fDhr9"
-                                    -
-                                      "deliveryFormat": "PDF_URL"
-                                      "deliveryValue": "https://api.ventrata.com/octo/pdf?booking=36d2d844-121d-453c-b514-de027caaf27f&ticket=72419a19-c58c-46a0-b316-13509de43909"
-                              "examples":
-                                -
-                                  "redemptionMethod": "DIGITAL"
-                                  "utcRedeemedAt": null
-                                  "deliveryOptions":
-                                    -
-                                      "deliveryFormat": "QRCODE"
-                                      "deliveryValue": "string"
-                              "properties":
-                                "redemptionMethod":
-                                  $ref: "#/components/schemas/RedemptionMethod"
-                                "utcRedeemedAt":
-                                  "type":
-                                    - "null"
-                                    - "string"
-                                  "description": "The ISO8601 date in UTC indicating when the ticket was used at the attraction."
-                                "deliveryOptions":
-                                  "type": "array"
-                                  "items":
-                                    "type": "object"
-                                    "properties":
-                                      "deliveryFormat":
-                                        "type": "string"
-                                        "title": "DeliveryFormat"
-                                        "x-stoplight":
-                                          "id": "xo5qi6jemvvhc"
-                                        "enum":
-                                          - "PDF_URL"
-                                          - "QRCODE"
-                                        "description": "The format for the delivery option possible values are:\n`QRCODE` You should generate the QR Code yourself on a ticket.\n`PDF_URL` Where you use the generated tickets as a PDF."
-                                        "example": "QRCODE"
-                                        "examples":
-                                          - "QRCODE"
-                                      "deliveryValue":
-                                        "type": "string"
-                                        "description": "The format for the delivery option possible values are:\n`QRCODE` You should generate the QR Code yourself on a ticket.\n`PDF_URL` Where you use the generated tickets as a PDF.\n"
-                                    "required":
-                                      - "deliveryFormat"
-                                      - "deliveryValue"
-                              "required":
-                                - "redemptionMethod"
-                                - "utcRedeemedAt"
-                                - "deliveryOptions"
-                              "description": ""
+                              $ref: "#/components/schemas/Ticket"
                             -
                               "type": "null"
                       "required":
@@ -4070,17 +3497,7 @@
           "type": "boolean"
           "description": "Whether an `availabilityId` is required when creating a booking. Without this the booking will be open-dated and not have a specified travel date."
         "availabilityType":
-          "type": "string"
-          "title": "AvailabilityType"
-          "x-stoplight":
-            "id": "n70vwjh7kvmxk"
-          "enum":
-            - "START_TIME"
-            - "OPENING_HOURS"
-          "description": "What type of availability this product has, possible values are:\n`START_TIME` if there are fixed departure times which you must pick one. Typical for day tours or activities.\n`OPENING_HOURS` if you just select a date and can visit any time when the venue is open."
-          "example": "START_TIME"
-          "examples":
-            - "START_TIME"
+          $ref: "#/components/schemas/AvailabilityType"
         "deliveryFormats":
           "type": "array"
           "description": "An array of formats the API will deliver the tickets as. Possible values are:\n`QRCODE` A code to be presented as a QR CODE barcode\n`CODE128A` code to be presented as a CODE 128 barcode\n`PDF_URL` A URL to a PDF file which contains all the ticket details"
@@ -4178,37 +3595,12 @@
                 "example": 1
                 "description": "The numeric amount for the cutoff."
               "cancellationCutoffUnit":
-                "type": "string"
-                "title": "DurationUnit"
-                "x-stoplight":
-                  "id": "etuhjhtharyrt"
-                "enum":
-                  - "hour"
-                  - "minute"
-                  - "day"
-                "example": "hour"
-                "description": "Time units used to determine duration. Three values are available: `hour`, `minute`, `day`."
-                "examples":
-                  - "hour"
+                $ref: "#/components/schemas/DurationUnit"
               "requiredContactFields":
                 "type": "array"
                 "description": "An array of the contact fields required to confirm a booking. These just apply to the lead traveller on the booking and not for every ticket."
                 "items":
-                  "type": "string"
-                  "title": "ContactField"
-                  "x-stoplight":
-                    "id": "5qud985l1i6ih"
-                  "enum":
-                    - "firstName"
-                    - "lastName"
-                    - "emailAddress"
-                    - "phoneNumber"
-                    - "country"
-                    - "notes"
-                    - "locales"
-                  "examples":
-                    - "firstName"
-                  "description": ""
+                  $ref: "#/components/schemas/ContactField"
               "restrictions":
                 "type": "object"
                 "x-examples":
@@ -4330,70 +3722,7 @@
               - "firstName"
             "description": ""
         "restrictions":
-          "type": "object"
-          "x-examples":
-            "example-1":
-              "minAge": 0
-              "maxAge": 100
-              "idRequired": false
-              "minQuantity": 1
-              "maxQuantity": null
-              "paxCount": 4
-              "accompaniedBy": []
-          "description": "unit restrictions"
-          "examples":
-            -
-              "minAge": 3
-              "maxAge": 17
-              "idRequired": true
-              "minQuantity": 2
-              "maxQuantity": 7
-              "paxCount": 1
-              "accompaniedBy":
-                - "adult_697e3ce8-1860-4cbf-80ad-95857df1f640"
-          "title": "UnitRestrictions"
-          "properties":
-            "minAge":
-              "type": "integer"
-              "example": 3
-              "description": "This is the minumum age this unit can be sold to"
-            "maxAge":
-              "type": "integer"
-              "example": 17
-              "description": "This is the maximum age this unit can be sold to"
-            "idRequired":
-              "type": "boolean"
-              "description": "This is whether a form of identification will be required at redemption point (eg. student card)"
-            "minQuantity":
-              "type":
-                - "integer"
-                - "null"
-              "example": 2
-              "description": "This is if there is a minimum amount of units to be chosen for purchase (eg. 2)"
-            "maxQuantity":
-              "type":
-                - "null"
-                - "integer"
-              "example": 7
-              "description": "This is if there is a maximum amount of units to be chosen for purchase (eg. 7)"
-            "paxCount":
-              "type": "integer"
-              "description": "This is the amount of people each unit counts as (eg. family == 4pax)"
-              "example": 1
-            "accompaniedBy":
-              "type": "array"
-              "description": "This is if the unit needs to be accompanied by another unit (eg. Infant with Adult)"
-              "items":
-                "type": "string"
-                "example": "adult_697e3ce8-1860-4cbf-80ad-95857df1f640"
-          "required":
-            - "minAge"
-            - "maxAge"
-            - "idRequired"
-            - "minQuantity"
-            - "maxQuantity"
-            - "paxCount"
-            - "accompaniedBy"
+          $ref: "#/components/schemas/UnitRestrictions"
       "required":
         - "id"
         - "internalName"
@@ -4610,64 +3939,14 @@
           "example": 1
           "description": "The numeric amount for the cutoff."
         "cancellationCutoffUnit":
-          "type": "string"
-          "title": "DurationUnit"
-          "x-stoplight":
-            "id": "etuhjhtharyrt"
-          "enum":
-            - "hour"
-            - "minute"
-            - "day"
-          "example": "hour"
-          "description": "Time units used to determine duration. Three values are available: `hour`, `minute`, `day`."
-          "examples":
-            - "hour"
+          $ref: "#/components/schemas/DurationUnit"
         "requiredContactFields":
           "type": "array"
           "description": "An array of the contact fields required to confirm a booking. These just apply to the lead traveller on the booking and not for every ticket."
           "items":
-            "type": "string"
-            "title": "ContactField"
-            "x-stoplight":
-              "id": "5qud985l1i6ih"
-            "enum":
-              - "firstName"
-              - "lastName"
-              - "emailAddress"
-              - "phoneNumber"
-              - "country"
-              - "notes"
-              - "locales"
-            "examples":
-              - "firstName"
-            "description": ""
+            $ref: "#/components/schemas/ContactField"
         "restrictions":
-          "type": "object"
-          "x-examples":
-            "example-1":
-              "minUnits": 0
-              "maxUnits": 9
-          "description": "An object containing a fixed list of restrictions for booking the option."
-          "examples":
-            -
-              "minUnits": null
-              "maxUnits": 10
-          "properties":
-            "minUnits":
-              "type":
-                - "integer"
-                - "null"
-              "example": 0
-              "description": "The minimum number of tickets that can be purchased in a single booking (null = 0)."
-            "maxUnits":
-              "type":
-                - "integer"
-                - "null"
-              "example": 10
-              "description": "The maximum number of tickets that can be purchased in a single booking (null = unlimited)."
-          "required":
-            - "minUnits"
-            - "maxUnits"
+          $ref: "#/components/schemas/OptionRestrictions"
         "units":
           "type": "array"
           "description": "The list of ticket types (units) available for sale."
@@ -4890,20 +4169,7 @@
           "type": "boolean"
           "description": "Whether there is availability for this date / slot."
         "status":
-          "type": "string"
-          "title": "AvailabilityStatus"
-          "x-stoplight":
-            "id": "tmiby64nsmjy8"
-          "enum":
-            - "AVAILABLE"
-            - "FREESALE"
-            - "SOLD_OUT"
-            - "LIMITED"
-            - "CLOSED"
-          "description": "The status of that date. Possible values are:\n`AVAILABLE` This availability is available for sale\n`FREESALE` This availability has no capacity and is available.\n`SOLD_OUT` There are no more spots available for this date / slot.\n`LIMITED` This availability is available but has less than 50% capacity left.\n`CLOSED` Availability is closed for this day / slot."
-          "example": "AVAILABLE"
-          "examples":
-            - "AVAILABLE"
+          $ref: "#/components/schemas/AvailabilityStatus"
         "vacancies":
           "type":
             - "integer"
@@ -4929,28 +4195,7 @@
         "openingHours":
           "type": "array"
           "items":
-            "type": "object"
-            "x-examples":
-              "example-1":
-                "from": "08:00"
-                "to": "18:30"
-            "description": "A list of opening hours that the product is open on this day."
-            "properties":
-              "from":
-                "type": "string"
-                "example": "08:00"
-                "description": "When this product opens (HH:MM)"
-              "to":
-                "type": "string"
-                "example": "16:00"
-                "description": "When this product closes (HH:MM)"
-            "required":
-              - "from"
-              - "to"
-            "examples":
-              -
-                "from": "08:00"
-                "to": "16:00"
+            $ref: "#/components/schemas/OpeningHours"
       "required":
         - "id"
         - "localDateTimeStart"
@@ -5013,20 +4258,7 @@
           "type": "boolean"
           "description": "Whether there is availability for this date / slot."
         "status":
-          "type": "string"
-          "title": "AvailabilityStatus"
-          "x-stoplight":
-            "id": "tmiby64nsmjy8"
-          "enum":
-            - "AVAILABLE"
-            - "FREESALE"
-            - "SOLD_OUT"
-            - "LIMITED"
-            - "CLOSED"
-          "description": "The status of that date. Possible values are:\n`AVAILABLE` This availability is available for sale\n`FREESALE` This availability has no capacity and is available.\n`SOLD_OUT` There are no more spots available for this date / slot.\n`LIMITED` This availability is available but has less than 50% capacity left.\n`CLOSED` Availability is closed for this day / slot."
-          "example": "AVAILABLE"
-          "examples":
-            - "AVAILABLE"
+          $ref: "#/components/schemas/AvailabilityStatus"
         "vacancies":
           "type":
             - "integer"
@@ -5042,28 +4274,7 @@
         "openingHours":
           "type": "array"
           "items":
-            "type": "object"
-            "x-examples":
-              "example-1":
-                "from": "08:00"
-                "to": "18:30"
-            "description": "A list of opening hours that the product is open on this day."
-            "properties":
-              "from":
-                "type": "string"
-                "example": "08:00"
-                "description": "When this product opens (HH:MM)"
-              "to":
-                "type": "string"
-                "example": "16:00"
-                "description": "When this product closes (HH:MM)"
-            "required":
-              - "from"
-              - "to"
-            "examples":
-              -
-                "from": "08:00"
-                "to": "16:00"
+            $ref: "#/components/schemas/OpeningHours"
       "required":
         - "localDate"
         - "available"
@@ -5288,86 +4499,9 @@
               "type": "array"
               "description": "This is the array of the contact information PER ticket that the supplier expects."
               "items":
-                "type": "string"
-                "title": "ContactField"
-                "x-stoplight":
-                  "id": "5qud985l1i6ih"
-                "enum":
-                  - "firstName"
-                  - "lastName"
-                  - "emailAddress"
-                  - "phoneNumber"
-                  - "country"
-                  - "notes"
-                  - "locales"
-                "examples":
-                  - "firstName"
-                "description": ""
+                $ref: "#/components/schemas/ContactField"
             "restrictions":
-              "type": "object"
-              "x-examples":
-                "example-1":
-                  "minAge": 0
-                  "maxAge": 100
-                  "idRequired": false
-                  "minQuantity": 1
-                  "maxQuantity": null
-                  "paxCount": 4
-                  "accompaniedBy": []
-              "description": "unit restrictions"
-              "examples":
-                -
-                  "minAge": 3
-                  "maxAge": 17
-                  "idRequired": true
-                  "minQuantity": 2
-                  "maxQuantity": 7
-                  "paxCount": 1
-                  "accompaniedBy":
-                    - "adult_697e3ce8-1860-4cbf-80ad-95857df1f640"
-              "title": "UnitRestrictions"
-              "properties":
-                "minAge":
-                  "type": "integer"
-                  "example": 3
-                  "description": "This is the minumum age this unit can be sold to"
-                "maxAge":
-                  "type": "integer"
-                  "example": 17
-                  "description": "This is the maximum age this unit can be sold to"
-                "idRequired":
-                  "type": "boolean"
-                  "description": "This is whether a form of identification will be required at redemption point (eg. student card)"
-                "minQuantity":
-                  "type":
-                    - "integer"
-                    - "null"
-                  "example": 2
-                  "description": "This is if there is a minimum amount of units to be chosen for purchase (eg. 2)"
-                "maxQuantity":
-                  "type":
-                    - "null"
-                    - "integer"
-                  "example": 7
-                  "description": "This is if there is a maximum amount of units to be chosen for purchase (eg. 7)"
-                "paxCount":
-                  "type": "integer"
-                  "description": "This is the amount of people each unit counts as (eg. family == 4pax)"
-                  "example": 1
-                "accompaniedBy":
-                  "type": "array"
-                  "description": "This is if the unit needs to be accompanied by another unit (eg. Infant with Adult)"
-                  "items":
-                    "type": "string"
-                    "example": "adult_697e3ce8-1860-4cbf-80ad-95857df1f640"
-              "required":
-                - "minAge"
-                - "maxAge"
-                - "idRequired"
-                - "minQuantity"
-                - "maxQuantity"
-                - "paxCount"
-                - "accompaniedBy"
+              $ref: "#/components/schemas/UnitRestrictions"
           "required":
             - "id"
             - "internalName"
@@ -5463,62 +4597,7 @@
         "ticket":
           "oneOf":
             -
-              "type": "object"
-              "x-examples":
-                "example-1":
-                  "redemptionMethod": "DIGITAL"
-                  "utcRedeemedAt": null
-                  "deliveryOptions":
-                    -
-                      "deliveryFormat": "QRCODE"
-                      "deliveryValue": "!1|El3f0wUmcnrEmviMcR9qwqC9hvfrcWc6cZcRcrcR|yrirfZfqHPj40mvhpw2XzX|q7FF77QqFD7fDhr9"
-                    -
-                      "deliveryFormat": "PDF_URL"
-                      "deliveryValue": "https://api.ventrata.com/octo/pdf?booking=36d2d844-121d-453c-b514-de027caaf27f&ticket=72419a19-c58c-46a0-b316-13509de43909"
-              "examples":
-                -
-                  "redemptionMethod": "DIGITAL"
-                  "utcRedeemedAt": null
-                  "deliveryOptions":
-                    -
-                      "deliveryFormat": "QRCODE"
-                      "deliveryValue": "string"
-              "properties":
-                "redemptionMethod":
-                  $ref: "#/components/schemas/RedemptionMethod"
-                "utcRedeemedAt":
-                  "type":
-                    - "null"
-                    - "string"
-                  "description": "The ISO8601 date in UTC indicating when the ticket was used at the attraction."
-                "deliveryOptions":
-                  "type": "array"
-                  "items":
-                    "type": "object"
-                    "properties":
-                      "deliveryFormat":
-                        "type": "string"
-                        "title": "DeliveryFormat"
-                        "x-stoplight":
-                          "id": "xo5qi6jemvvhc"
-                        "enum":
-                          - "PDF_URL"
-                          - "QRCODE"
-                        "description": "The format for the delivery option possible values are:\n`QRCODE` You should generate the QR Code yourself on a ticket.\n`PDF_URL` Where you use the generated tickets as a PDF."
-                        "example": "QRCODE"
-                        "examples":
-                          - "QRCODE"
-                      "deliveryValue":
-                        "type": "string"
-                        "description": "The format for the delivery option possible values are:\n`QRCODE` You should generate the QR Code yourself on a ticket.\n`PDF_URL` Where you use the generated tickets as a PDF.\n"
-                    "required":
-                      - "deliveryFormat"
-                      - "deliveryValue"
-              "required":
-                - "redemptionMethod"
-                - "utcRedeemedAt"
-                - "deliveryOptions"
-              "description": ""
+              $ref: "#/components/schemas/Ticket"
             -
               "type": "null"
       "required":
