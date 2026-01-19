@@ -131,44 +131,7 @@
                           "from": "09:00"
                           "to": "17:00"
         "400":
-          "description": "Example response"
-          "content":
-            "application/json":
-              "schema":
-                "type": "object"
-                "x-examples":
-                  "example-1":
-                    "error": "INVALID_PRODUCT_ID"
-                    "errorMessage": "The productId was missing or invalid"
-                    "productId": "7c3eb026-3d36-4981-9c56-28d8a52a54dd"
-                "additionalProperties": false
-                "properties":
-                  "error":
-                    "type": "string"
-                  "errorMessage":
-                    "type": "string"
-                  "productId":
-                    "type": "string"
-                  "optionId":
-                    "type": "string"
-                "required":
-                  - "error"
-                  - "errorMessage"
-              "examples":
-                "INVALID_PRODUCT_ID":
-                  "value":
-                    "error": "INVALID_PRODUCT_ID"
-                    "errorMessage": "The productId was missing or invalid"
-                    "productId": "cc2a6d56-6efe-426f-99c9-6eb10e341565"
-                "INVALID_OPTION_ID":
-                  "value":
-                    "error": "INVALID_OPTION_ID"
-                    "errorMessage": "The optionId was missing or invalid"
-                    "optionId": "681fea0f-196e-45da-bec7-467bfacb1d87"
-                "BAD_REQUEST":
-                  "value":
-                    "error": "BAD_REQUEST"
-                    "errorMessage": "cannot request more than 1 year of availability"
+          $ref: "#/components/responses/AvailabilityCalendarError"
       "requestBody":
         "content":
           "application/json":
@@ -291,39 +254,7 @@
                       "utcCutoffAt": "2022-06-30T12:00:00Z"
                       "openingHours": []
         "400":
-          "description": "Example response"
-          "content":
-            "application/json":
-              "schema":
-                "type": "object"
-                "additionalProperties": false
-                "properties":
-                  "error":
-                    "type": "string"
-                  "errorMessage":
-                    "type": "string"
-                  "productId":
-                    "type": "string"
-                  "optionId":
-                    "type": "string"
-                "required":
-                  - "error"
-                  - "errorMessage"
-              "examples":
-                "INVALID_PRODUCT_ID":
-                  "value":
-                    "error": "INVALID_PRODUCT_ID"
-                    "errorMessage": "The productId was missing or invalid"
-                    "productId": "cc2a6d56-6efe-426f-99c9-6eb10e341565"
-                "INVALID_OPTION_ID":
-                  "value":
-                    "error": "INVALID_OPTION_ID"
-                    "errorMessage": "The optionId was missing or invalid"
-                    "optionId": "681fea0f-196e-45da-bec7-467bfacb1d87"
-                "BAD_REQUEST":
-                  "value":
-                    "error": "BAD_REQUEST"
-                    "errorMessage": "either localDate, localDateStart/localDateEnd or availabilityIds is required"
+          $ref: "#/components/responses/AvailabilityCheckError"
       "requestBody":
         "content":
           "application/json":
